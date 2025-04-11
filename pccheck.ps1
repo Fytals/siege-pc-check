@@ -431,6 +431,78 @@ EXECUTED EXE FILES:
             }
         }
 
+        # Check for Logitech G HUB macros
+        if ((Get-ColoredChoice "`nCheck Logitech G HUB for macros") -eq 'Y') {
+            Write-Host "`nScanning Logitech G HUB..." -ForegroundColor Cyan
+            
+            $ghubPaths = @(
+                "$env:LOCALAPPDATA\LGHUB\settings.db",
+                "$env:PROGRAMDATA\LGHUB\settings.db"
+            )
+
+            $macroFound = $false
+            foreach ($path in $ghubPaths) {
+                if (Test-Path $path) {
+                    Write-Host "Analyzing G HUB settings at: $path" -ForegroundColor Yellow
+                    try {
+                        $content = Get-Content $path -Raw -ErrorAction SilentlyContinue
+                        
+                        # Suspicious macro patterns
+                        $macroPatterns = @(
+                            'mouseDown',           # Mouse click automation
+                            'mouseUp',             # Mouse release automation
+                            'keyDown',             # Key press automation
+                            'keyUp',               # Key release automation
+                            'delay',               # Timing delays
+                            'repeat',              # Repeat actions
+                            'rainbow.*six',        # Game specific macros
+                            'r6.*siege',           # Game specific macros
+                            'recoil',              # Recoil control
+                            'rapid.*fire',         # Rapid fire macros
+                            'auto.*fire'           # Auto fire macros
+                        )
+
+                        foreach ($pattern in $macroPatterns) {
+                            if ($content -match $pattern) {
+                                $macroFound = $true
+                                Write-Host "WARNING: Potential macro detected - Pattern: '$pattern'" -ForegroundColor Red
+                                
+                                # Get surrounding context
+                                $matches = [regex]::Matches($content, ".{0,50}$pattern.{0,50}")
+                                foreach ($match in $matches) {
+                                    Write-Host "Context: ...${match}..." -ForegroundColor Yellow
+                                }
+                            }
+                        }
+
+                        # Check file modification time
+                        $fileInfo = Get-Item $path
+                        Write-Host "`nG HUB settings last modified: " -NoNewline
+                        Write-Host $fileInfo.LastWriteTime -ForegroundColor Cyan
+                        
+                        if (-not $macroFound) {
+                            Write-Host "No suspicious macros detected" -ForegroundColor Green
+                        }
+
+                    } catch {
+                        Write-Host "Error accessing G HUB settings: $_" -ForegroundColor Red
+                    }
+                }
+            }
+            
+            # Check for G HUB process
+            $ghubProcess = Get-Process "lghub" -ErrorAction SilentlyContinue
+            if ($ghubProcess) {
+                Write-Host "`nG HUB Process Information:" -ForegroundColor Yellow
+                Write-Host "Status: Running" -ForegroundColor Green
+                Write-Host "CPU Usage: $([math]::Round($ghubProcess.CPU, 2))%" -ForegroundColor Cyan
+                Write-Host "Memory Usage: $([math]::Round($ghubProcess.WorkingSet64 / 1MB, 2)) MB" -ForegroundColor Cyan
+                Write-Host "Start Time: $($ghubProcess.StartTime)" -ForegroundColor Cyan
+            } else {
+                Write-Host "`nG HUB is not currently running" -ForegroundColor Yellow
+            }
+        }
+
         Write-Host "----------------------------------------" -ForegroundColor Yellow
     }
 
