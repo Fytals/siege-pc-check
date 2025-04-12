@@ -48,3 +48,6 @@ command starts here -  iex ((New-Object System.Net.WebClient).DownloadString('ht
 - Administrator privilege checks
 - File access error handling
 - Service status verification
+
+
+Feel Free to Add to it in PRs and ill get around to it when i can. Lets Get rid of all the cheaters!!!
