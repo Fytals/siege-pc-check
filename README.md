@@ -1,6 +1,6 @@
 How to use
 use this command in a powershell window thats run as admin 
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Fytals/siege-pc-check/main/pccheck.ps1'))
+command starts here -  iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Fytals/siege-pc-check/main/pccheck.ps1')) ends here
 1.
 - Write-Log: Timestamps and logs messages
 - Get-ColoredChoice: Creates colored Y/N prompts (Green/Red)
